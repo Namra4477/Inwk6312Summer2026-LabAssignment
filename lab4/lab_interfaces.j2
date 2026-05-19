@@ -1,0 +1,31 @@
+no ip domain lookup
+hostname {{host.hostname}}
+line con 0
+logging synchronous
+exit
+interface Loopback0
+ip address {{host.loopback_ip}} 255.255.255.255
+no shutdown
+exit
+interface GigabitEthernet1
+no shutdown
+exit
+{% for interface in host.interfaces %}
+interface {{interface.name}}
+encapsulation dot1Q {{interface.vlan}}
+ip address {{interface.ip}} {{interface.mask}}
+no shutdown
+exit
+{% endfor %}
+router rip
+version 2
+{% for network in host.rip_networks %}
+network {{network}}
+{% endfor %}
+no auto-summary
+exit
+line vty 0 4
+password inwk
+login
+transport input all
+exit
